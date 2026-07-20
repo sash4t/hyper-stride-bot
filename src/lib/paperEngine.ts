@@ -247,18 +247,18 @@ export class PaperEngine {
     const stopDist = this.settings.sl_type === "atr"
       ? sig.atrValue * this.settings.sl_atr_mult
       : sig.price * (this.settings.sl_fixed_pct / 100);
-    const sl = sig.side === "long" ? sig.price - stopDist : sig.price + stopDist;
-    const tp = sig.side === "long" ? sig.price + stopDist * this.settings.tp_rr : sig.price - stopDist * this.settings.tp_rr;
+    const sl = side === "long" ? sig.price - stopDist : sig.price + stopDist;
+    const tp = side === "long" ? sig.price + stopDist * this.settings.tp_rr : sig.price - stopDist * this.settings.tp_rr;
 
-    const reason = `${sig.side.toUpperCase()} ${sig.coin} — ${sig.reasons.join(" + ")}`;
+    const reason = `${side.toUpperCase()} ${sig.coin} — ${sig.reasons.join(" + ")}`;
     const { data, error } = await supabase.from("paper_positions").insert({
-      user_id: this.userId, coin: sig.coin, side: sig.side, size, notional: size * sig.price,
+      user_id: this.userId, coin: sig.coin, side, size, notional: size * sig.price,
       leverage, entry_price: sig.price, stop_loss: sl, take_profit: tp,
       confidence: sig.confidence, reason, indicators: sig.indicators,
     }).select().single();
     if (error || !data) { this.log("error", `Failed to open ${sig.coin}: ${error?.message}`); return; }
     this.positions.push({
-      id: data.id, coin: sig.coin, side: sig.side, size, notional: size * sig.price,
+      id: data.id, coin: sig.coin, side, size, notional: size * sig.price,
       leverage, entry_price: sig.price, stop_loss: sl, take_profit: tp,
       trail_high: null, confidence: sig.confidence,
     });
