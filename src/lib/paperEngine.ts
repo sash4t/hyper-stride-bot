@@ -76,7 +76,7 @@ export class PaperEngine {
     // Load current open positions
     const { data: openPos } = await supabase.from("paper_positions").select("*").eq("user_id", this.userId).eq("status", "open");
     this.positions = (openPos ?? []).map(p => ({
-      id: p.id, coin: p.coin, side: p.side, size: +p.size, notional: +p.notional,
+      id: p.id, coin: p.coin, side: p.side as "long" | "short", size: +p.size, notional: +p.notional,
       leverage: +p.leverage, entry_price: +p.entry_price, stop_loss: +p.stop_loss,
       take_profit: +p.take_profit, trail_high: p.trail_high != null ? +p.trail_high : null,
       confidence: +p.confidence,
