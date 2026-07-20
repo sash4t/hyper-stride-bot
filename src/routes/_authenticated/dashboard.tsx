@@ -64,10 +64,10 @@ function Dashboard() {
   const wins = closed.filter(c => +(c.pnl ?? 0) > 0);
   const losses = closed.filter(c => +(c.pnl ?? 0) <= 0);
   const winRate = closed.length ? (wins.length / closed.length) * 100 : 0;
-  const avgWin = wins.length ? wins.reduce((s, c) => s + +c.pnl, 0) / wins.length : 0;
-  const avgLoss = losses.length ? losses.reduce((s, c) => s + +c.pnl, 0) / losses.length : 0;
+  const avgWin = wins.length ? wins.reduce((s, c) => s + +(c.pnl ?? 0), 0) / wins.length : 0;
+  const avgLoss = losses.length ? losses.reduce((s, c) => s + +(c.pnl ?? 0), 0) / losses.length : 0;
   const profitFactor = losses.length && avgLoss !== 0
-    ? Math.abs((wins.reduce((s, c) => s + +c.pnl, 0)) / (losses.reduce((s, c) => s + +c.pnl, 0)))
+    ? Math.abs((wins.reduce((s, c) => s + +(c.pnl ?? 0), 0)) / (losses.reduce((s, c) => s + +(c.pnl ?? 0), 0)))
     : wins.length ? Infinity : 0;
 
   // Max drawdown from equity snapshots
