@@ -228,6 +228,7 @@ export class PaperEngine {
   }
 
   private async tryOpen(sig: Signal, meta: AssetMeta) {
+    const side = sig.side!; // caller ensured non-null
     // correlation guard
     const b = bucket(sig.coin);
     const bucketCount = this.positions.filter(p => bucket(p.coin) === b).length;
