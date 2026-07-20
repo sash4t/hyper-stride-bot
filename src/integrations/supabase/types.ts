@@ -14,7 +14,213 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bot_events: {
+        Row: {
+          id: number
+          level: string
+          message: string
+          meta: Json | null
+          ts: string
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          level?: string
+          message: string
+          meta?: Json | null
+          ts?: string
+          user_id: string
+        }
+        Update: {
+          id?: number
+          level?: string
+          message?: string
+          meta?: Json | null
+          ts?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bot_settings: {
+        Row: {
+          bot_enabled: boolean
+          daily_loss_pct: number
+          kill_switch_engaged: boolean
+          max_exposure_pct: number
+          max_leverage: number
+          max_positions: number
+          min_confidence: number
+          mode: string
+          paper_equity: number
+          position_size_pct: number
+          sl_atr_mult: number
+          sl_fixed_pct: number
+          sl_type: string
+          strategy_mode: string
+          tp_rr: number
+          trailing_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bot_enabled?: boolean
+          daily_loss_pct?: number
+          kill_switch_engaged?: boolean
+          max_exposure_pct?: number
+          max_leverage?: number
+          max_positions?: number
+          min_confidence?: number
+          mode?: string
+          paper_equity?: number
+          position_size_pct?: number
+          sl_atr_mult?: number
+          sl_fixed_pct?: number
+          sl_type?: string
+          strategy_mode?: string
+          tp_rr?: number
+          trailing_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bot_enabled?: boolean
+          daily_loss_pct?: number
+          kill_switch_engaged?: boolean
+          max_exposure_pct?: number
+          max_leverage?: number
+          max_positions?: number
+          min_confidence?: number
+          mode?: string
+          paper_equity?: number
+          position_size_pct?: number
+          sl_atr_mult?: number
+          sl_fixed_pct?: number
+          sl_type?: string
+          strategy_mode?: string
+          tp_rr?: number
+          trailing_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      equity_snapshots: {
+        Row: {
+          equity: number
+          id: number
+          realized_pnl: number
+          ts: string
+          unrealized_pnl: number
+          user_id: string
+        }
+        Insert: {
+          equity: number
+          id?: number
+          realized_pnl?: number
+          ts?: string
+          unrealized_pnl?: number
+          user_id: string
+        }
+        Update: {
+          equity?: number
+          id?: number
+          realized_pnl?: number
+          ts?: string
+          unrealized_pnl?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      paper_positions: {
+        Row: {
+          closed_at: string | null
+          coin: string
+          confidence: number
+          entry_price: number
+          exit_price: number | null
+          exit_reason: string | null
+          id: string
+          indicators: Json | null
+          leverage: number
+          notional: number
+          opened_at: string
+          pnl: number | null
+          reason: string
+          side: string
+          size: number
+          status: string
+          stop_loss: number
+          take_profit: number
+          trail_high: number | null
+          user_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          coin: string
+          confidence: number
+          entry_price: number
+          exit_price?: number | null
+          exit_reason?: string | null
+          id?: string
+          indicators?: Json | null
+          leverage: number
+          notional: number
+          opened_at?: string
+          pnl?: number | null
+          reason: string
+          side: string
+          size: number
+          status?: string
+          stop_loss: number
+          take_profit: number
+          trail_high?: number | null
+          user_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          coin?: string
+          confidence?: number
+          entry_price?: number
+          exit_price?: number | null
+          exit_reason?: string | null
+          id?: string
+          indicators?: Json | null
+          leverage?: number
+          notional?: number
+          opened_at?: string
+          pnl?: number | null
+          reason?: string
+          side?: string
+          size?: number
+          status?: string
+          stop_loss?: number
+          take_profit?: number
+          trail_high?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          wallet_address: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
