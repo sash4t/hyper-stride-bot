@@ -19,15 +19,6 @@ export const Route = createFileRoute("/api/public/cron/trade-cycle")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        if (new URL(request.url).searchParams.get("selftest") === "1") {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          const { data: u } = await supabaseAdmin.from("bot_settings").select("user_id").limit(1);
-          const { error } = await supabaseAdmin.from("bot_events").insert({
-            user_id: u?.[0]?.user_id as string, level: "info", message: "selftest", meta: null,
-          });
-          return Response.json({ selftest: true, error: error?.message ?? null });
-        }
-
         try {
           const { runTradingCycle } = await import("@/lib/agent.server");
           const report = await runTradingCycle();
