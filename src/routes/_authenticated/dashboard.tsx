@@ -134,7 +134,34 @@ function Dashboard() {
         {openPos.length === 0 ? (
           <div className="py-10 text-center text-sm text-muted-foreground">No open positions. The bot will open positions when a high-confidence signal appears.</div>
         ) : (
-          <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
+          <><div className="space-y-3 md:hidden">
+            {openPos.map((p: any) => {
+              const mark = +(mids[p.coin] ?? p.entry_price);
+              const pnl = p.side === "long" ? (mark - +p.entry_price) * +p.size : (+p.entry_price - mark) * +p.size;
+              const margin = +p.notional / Math.max(1, +p.leverage);
+              return (
+                <div key={p.id} className="rounded-md border border-panel-border p-3">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                    <div className="min-w-0">
+                      <span className="mono truncate text-sm font-semibold">{p.coin}</span>
+                      <span className={`mono ml-2 text-xs font-semibold ${p.side === "long" ? "text-bull" : "text-bear"}`}>{p.side.toUpperCase()}</span>
+                    </div>
+                    <div className={`mono shrink-0 text-sm font-semibold ${pnl >= 0 ? "text-bull" : "text-bear"}`}>
+                      {pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}
+                      <span className="ml-1 text-xs opacity-70">({pnl >= 0 ? "+" : ""}{(margin > 0 ? (pnl / margin) * 100 : 0).toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                  <div className="mono mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Entry</span><span>{(+p.entry_price).toFixed(6)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Mark</span><span>{mark.toFixed(6)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">SL</span><span className="text-bear">{(+p.stop_loss).toFixed(4)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">TP</span><span className="text-bull">{(+p.take_profit).toFixed(4)}</span></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="hidden overflow-x-auto md:block"><table className="w-full min-w-[720px] text-sm">
             <thead className="text-xs uppercase tracking-widest text-muted-foreground">
               <tr className="border-b border-panel-border"><th className="py-2 text-left">Coin</th><th className="text-right">PnL</th><th>Side</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">Size</th><th className="text-right">SL / TP</th></tr>
             </thead>
@@ -159,7 +186,7 @@ function Dashboard() {
                 );
               })}
             </tbody>
-          </table></div>
+          </table></div></>
         )}
       </div>
     </div>

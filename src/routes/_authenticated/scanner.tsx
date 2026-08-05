@@ -62,7 +62,35 @@ function Scanner() {
       </div>
 
       {loading ? <div className="py-20 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /> Loading markets…</div> : (
-        <div className="panel overflow-hidden">
+        <><div className="space-y-3 md:hidden">
+          {sorted.slice(0, 60).map(r => {
+            const mark = +(mids[r.meta.name] ?? r.ctx.markPx);
+            const fund = +r.ctx.funding * 100;
+            return (
+              <div key={r.meta.name} className="panel p-4">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                  <div className="min-w-0">
+                    <div className="mono truncate text-base font-semibold">{r.meta.name}</div>
+                    <div className="mono text-sm text-muted-foreground">{mark.toFixed(6)}</div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    {r.signal?.side
+                      ? <span className={`mono text-xs font-semibold ${r.signal.side === "long" ? "text-bull" : "text-bear"}`}>{r.signal.side.toUpperCase()} {r.signal.confidence}</span>
+                      : <span className="text-xs text-muted-foreground">{r.signal ? "no signal" : "not scanned"}</span>}
+                  </div>
+                </div>
+                <div className="mono mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                  <div className="flex justify-between"><span className="text-muted-foreground">24h vol</span><span>{(+r.ctx.dayNtlVlm / 1e6).toFixed(2)}M</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Funding</span><span className={fund >= 0 ? "text-bull" : "text-bear"}>{fund.toFixed(4)}%</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Open int</span><span>{(+r.ctx.openInterest).toFixed(0)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Max lev</span><span>{r.meta.maxLeverage}x</span></div>
+                </div>
+                {r.signal?.reasons?.length ? <div className="mt-2 text-xs text-muted-foreground">{r.signal.reasons.join(" · ")}</div> : null}
+              </div>
+            );
+          })}
+        </div>
+        <div className="panel hidden overflow-hidden md:block">
           <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
             <thead className="border-b border-panel-border text-xs uppercase tracking-widest text-muted-foreground">
               <tr>
@@ -94,7 +122,7 @@ function Scanner() {
               })}
             </tbody>
           </table></div>
-        </div>
+        </div></>
       )}
     </div>
   );
