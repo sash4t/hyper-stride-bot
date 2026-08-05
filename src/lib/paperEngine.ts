@@ -20,6 +20,16 @@ export interface Settings {
   trailing_enabled: boolean;
   bot_enabled: boolean;
   kill_switch_engaged: boolean;
+  // Always-on server agent
+  server_agent_enabled: boolean;
+  ai_review_enabled: boolean;
+  scalp_enabled: boolean;
+  scalp_tp_pct: number;
+  scalp_sl_pct: number;
+  trail_activate_pct: number;
+  trail_dist_pct: number;
+  last_cycle_at: string | null;
+  last_cycle_note: string | null;
 }
 
 export interface OpenPosition {
