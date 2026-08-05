@@ -49,20 +49,20 @@ function Scanner() {
   const sorted = useMemo(() => rows, [rows]);
 
   return (
-    <div className="p-8 space-y-4">
-      <div className="flex items-start justify-between">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Market scanner</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Market scanner</h1>
           <p className="text-sm text-muted-foreground">All Hyperliquid USDC perpetual markets, ranked by 24h volume.</p>
         </div>
-        <button onClick={runScan} disabled={scanningAll} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">
+        <button onClick={runScan} disabled={scanningAll} className="w-full shrink-0 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-50 sm:w-auto">
           {scanningAll ? <><Loader2 className="mr-2 inline h-3.5 w-3.5 animate-spin" />Scanning top 30…</> : "Scan top 30 for signals"}
         </button>
       </div>
 
       {loading ? <div className="py-20 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /> Loading markets…</div> : (
         <div className="panel overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
             <thead className="border-b border-panel-border text-xs uppercase tracking-widest text-muted-foreground">
               <tr>
                 <th className="p-3 text-left">Coin</th><th className="text-right">Mark</th><th className="text-right">24h vol</th>
@@ -92,7 +92,7 @@ function Scanner() {
                 );
               })}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
     </div>

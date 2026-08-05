@@ -30,10 +30,10 @@ function Positions() {
   };
 
   return (
-    <div className="p-8 space-y-4">
-      <h1 className="text-2xl font-semibold">Open positions</h1>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-semibold">Open positions</h1>
       <div className="panel overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
           <thead className="border-b border-panel-border text-xs uppercase tracking-widest text-muted-foreground">
             <tr><th className="p-3 text-left">Coin</th><th>Side</th><th className="text-right">Size</th><th className="text-right">Lev</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">SL</th><th className="text-right">TP</th><th className="text-right">PnL</th><th className="text-right">Conf</th><th></th></tr>
           </thead>
@@ -61,7 +61,7 @@ function Positions() {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );

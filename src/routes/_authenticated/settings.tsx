@@ -43,25 +43,25 @@ function SettingsPage() {
   };
 
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-semibold">Settings & wallet</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Settings & wallet</h1>
         <p className="text-sm text-muted-foreground">Read-only Hyperliquid account view. No private keys are ever stored server-side.</p>
       </div>
 
-      <div className="panel p-5 space-y-4">
+      <div className="panel p-4 sm:p-5 space-y-4">
         <div className="text-sm font-semibold">Hyperliquid wallet address (read-only)</div>
         <div className="text-xs text-muted-foreground">Your public address. Used to read live balance & positions. Signing (for real order execution) is out of scope here — use the executor service.</div>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input placeholder="0x…" value={wallet} onChange={e => setWallet(e.target.value)}
-            className="flex-1 rounded-md border border-panel-border bg-background px-3 py-2 mono text-sm" />
+            className="w-full min-w-0 flex-1 rounded-md border border-panel-border bg-background px-3 py-2 mono text-sm" />
           <button onClick={saveWallet} disabled={saving} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">Save</button>
           <button onClick={loadHyperliquid} disabled={!wallet || loadingWallet} className="rounded-md border border-panel-border px-4 py-2 text-sm">Fetch live state</button>
         </div>
 
         {userState && (
           <div className="mt-4 space-y-3">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-md bg-background p-3">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Account value</div>
                 <div className="mono text-lg">{(+userState.marginSummary.accountValue).toFixed(2)} USDC</div>
@@ -79,7 +79,7 @@ function SettingsPage() {
               <div className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">Live positions ({userState.assetPositions.length})</div>
               {userState.assetPositions.length === 0 && <div className="text-sm text-muted-foreground">None</div>}
               {userState.assetPositions.map(ap => (
-                <div key={ap.position.coin} className="mono flex items-center justify-between border-t border-panel-border/50 py-1.5 text-sm">
+                <div key={ap.position.coin} className="mono flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-panel-border/50 py-1.5 text-xs sm:text-sm">
                   <span>{ap.position.coin}</span>
                   <span className={+ap.position.szi >= 0 ? "text-bull" : "text-bear"}>{+ap.position.szi >= 0 ? "LONG" : "SHORT"} {Math.abs(+ap.position.szi)}</span>
                   <span>{(+ap.position.entryPx).toFixed(6)}</span>
@@ -91,7 +91,7 @@ function SettingsPage() {
         )}
       </div>
 
-      <div className="panel p-5 space-y-2">
+      <div className="panel p-4 sm:p-5 space-y-2">
         <div className="text-sm font-semibold">24/7 Live execution</div>
         <p className="text-xs text-muted-foreground">
           Automated live-order execution cannot run inside this browser app — the engine only trades while the tab is open, and Cloudflare Workers cannot hold the required WebSocket sessions. To run live 24/7 you need the companion executor service on your own VPS:

@@ -30,13 +30,13 @@ function Trades() {
   };
 
   return (
-    <div className="p-8 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Trade history</h1>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-semibold">Trade history</h1>
         <button onClick={download} className="flex items-center gap-2 rounded-md border border-panel-border px-3 py-1.5 text-xs hover:bg-panel"><Download className="h-3.5 w-3.5" /> Export CSV</button>
       </div>
       <div className="panel overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
           <thead className="border-b border-panel-border text-xs uppercase tracking-widest text-muted-foreground">
             <tr><th className="p-3 text-left">Closed</th><th>Coin</th><th>Side</th><th className="text-right">Entry</th><th className="text-right">Exit</th><th className="text-right">PnL</th><th>Exit</th><th className="text-left p-3">Reason</th></tr>
           </thead>
@@ -55,7 +55,7 @@ function Trades() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );
