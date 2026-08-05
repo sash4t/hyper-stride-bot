@@ -207,9 +207,10 @@ export class PaperEngine {
     if (this.settings.mode !== "paper") return; // safety
     // scan up to 8 coins per cycle prioritising liquid ones without positions
     const held = new Set(this.positions.map(p => p.coin));
+    const EXCLUDED_COINS = new Set(["BTC", "ETH"]);
     const scored = this.meta
       .map((m, i) => ({ meta: m, ctx: this.ctxs[i] }))
-      .filter(x => x.ctx && +x.ctx.dayNtlVlm > 5_000_000)
+      .filter(x => x.ctx && +x.ctx.dayNtlVlm > 5_000_000 && !EXCLUDED_COINS.has(x.meta.name))
       .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm)
       .slice(0, 40);
 

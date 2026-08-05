@@ -91,9 +91,10 @@ export async function runTradingCycle(): Promise<CycleReport> {
   const mids = await hl<Record<string, string>>({ type: "allMids" });
   const [meta, ctxs] = await hl<[{ universe: AssetMeta[] }, AssetCtx[]]>({ type: "metaAndAssetCtxs" });
 
+  const EXCLUDED_COINS = new Set(["BTC", "ETH"]);
   const liquid = meta.universe
     .map((m, i) => ({ meta: m, ctx: ctxs[i] }))
-    .filter((x) => x.ctx && +x.ctx.dayNtlVlm > 5_000_000)
+    .filter((x) => x.ctx && +x.ctx.dayNtlVlm > 5_000_000 && !EXCLUDED_COINS.has(x.meta.name))
     .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm)
     .slice(0, UNIVERSE_SIZE);
 
