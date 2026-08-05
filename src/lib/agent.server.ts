@@ -5,8 +5,8 @@ import { candlesToBars, bucket, type Bar } from "./strategy";
 import { evaluateScalp, exitReasonFor, updateTrail, type ExitParams, type ScalpSignal } from "./scalp";
 
 const HL_INFO = "https://api.hyperliquid.xyz/info";
-const INTERVAL = "15m";
-const INTERVAL_MS = 15 * 60 * 1000;
+const INTERVAL = "1h";
+const INTERVAL_MS = 60 * 60 * 1000;
 const BARS = 230;
 /** Coins examined per cycle. Rotated so the whole liquid universe is covered. */
 const SCAN_PER_CYCLE = 8;
