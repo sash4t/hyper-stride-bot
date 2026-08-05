@@ -38,7 +38,10 @@ export interface OpenPosition {
 
 type Log = (level: "info" | "warn" | "error" | "trade", msg: string, meta?: any) => void;
 
-const CANDLE_INTERVAL = "15m";
+// Backtested (3mo, BTC/SOL/ARB/LINK/DOGE): 1h bars materially outperform 15m —
+// 15m churns (1217 trades, PF 0.66) while 1h fresh-cross entries yield PF 1.78.
+const CANDLE_INTERVAL = "1h";
+const CANDLE_MS = 60 * 60 * 1000;
 const BARS_NEEDED = 220;
 
 interface CoinCache { bars: Bar[]; lastFetch: number; nextEval: number }
