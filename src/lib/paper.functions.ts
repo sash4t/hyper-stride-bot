@@ -27,31 +27,28 @@ export const resetPaperAccount = createServerFn({ method: "POST" })
     let closed = 0;
     for (const p of openPos ?? []) {
       const mark = mids[p.coin] ? +mids[p.coin] : p.entry_price;
-      const pnl = p.side === "long"
-        ? (mark - p.entry_price) * p.size
-        : (p.entry_price - mark) * p.size;
-      await supabaseAdmin
-        .from("paper_positions")
-        .update({
-          status: "closed",
-          exit_price: mark,
-          exit_reason: "reset",
-          pnl,
-          closed_at: new Date().toISOString(),
-        })
-        .eq("id", p.id);
+      void mark;
       closed++;
     }
+
+    // Wipe all paper history so stats/equity curve start clean
+    await supabaseAdmin.from("paper_positions").delete().eq("user_id", context.userId);
+    await supabaseAdmin.from("equity_snapshots").delete().eq("user_id", context.userId);
 
     await supabaseAdmin
       .from("bot_settings")
       .update({ paper_equity: DEFAULT_PAPER_EQUITY })
       .eq("user_id", context.userId);
 
+    await supabaseAdmin.from("equity_snapshots").insert({
+      user_id: context.userId,
+      equity: DEFAULT_PAPER_EQUITY,
+    });
+
     await supabaseAdmin.from("bot_events").insert({
       user_id: context.userId,
       level: "info",
-      message: `Paper account reset. ${closed} position(s) closed, equity reset to ${DEFAULT_PAPER_EQUITY} USDC.`,
+      message: `Paper account reset. ${closed} position(s) cleared, equity reset to ${DEFAULT_PAPER_EQUITY} USDC.`,
       meta: { closed, newEquity: DEFAULT_PAPER_EQUITY },
     });
 
