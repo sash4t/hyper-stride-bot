@@ -8,10 +8,10 @@ const HL_INFO = "https://api.hyperliquid.xyz/info";
 const INTERVAL = "1h";
 const INTERVAL_MS = 60 * 60 * 1000;
 const BARS = 230;
-/** Coins examined per cycle. Rotated so the whole liquid universe is covered. */
-const SCAN_PER_CYCLE = 20;
-const UNIVERSE_SIZE = 40;
-const MIN_24H_VOLUME = 3_000_000;
+/** Coins examined per cycle. Rotated so every USDC perp is covered every few minutes. */
+const SCAN_PER_CYCLE = 35;
+/** Skip only truly dead books where a market order could not fill. */
+const MIN_24H_VOLUME = 100_000;
 
 type Level = "info" | "warn" | "error" | "trade" | "ai";
 
