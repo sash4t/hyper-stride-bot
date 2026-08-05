@@ -18,8 +18,9 @@ function Scanner() {
   useEffect(() => {
     (async () => {
       const [m, ctxs] = await fetchMetaAndCtxs();
+      const EXCLUDED_COINS = new Set(["BTC", "ETH"]);
       const merged = m.universe.map((meta, i) => ({ meta, ctx: ctxs[i] }))
-        .filter(r => r.ctx)
+        .filter(r => r.ctx && !EXCLUDED_COINS.has(r.meta.name))
         .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm);
       setRows(merged);
       setLoading(false);
