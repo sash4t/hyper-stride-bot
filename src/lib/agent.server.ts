@@ -11,7 +11,7 @@ const BARS = 230;
 /** Coins examined per cycle. Rotated so the whole liquid universe is covered. */
 const SCAN_PER_CYCLE = 20;
 const UNIVERSE_SIZE = 40;
-const MIN_24H_VOLUME = 1_000_000;
+const MIN_24H_VOLUME = 3_000_000;
 
 type Level = "info" | "warn" | "error" | "trade" | "ai";
 
