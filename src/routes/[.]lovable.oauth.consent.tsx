@@ -17,10 +17,10 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;
     const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
     if (error) throw error;
-    const immediate = (data as { redirect_url?: string; redirect_to?: string } | null)?.redirect_url
-      ?? (data as { redirect_to?: string } | null)?.redirect_to;
-    if (immediate && !data?.client) throw redirect({ href: immediate });
-    return data;
+    const d = data as unknown as { redirect_url?: string; redirect_to?: string; client?: { name?: string } } | null;
+    const immediate = d?.redirect_url ?? d?.redirect_to;
+    if (immediate && !d?.client) throw redirect({ href: immediate });
+    return d;
   },
   component: Consent,
   errorComponent: ({ error }) => (
@@ -46,8 +46,8 @@ function Consent() {
       ? await supabase.auth.oauth.approveAuthorization(authorization_id)
       : await supabase.auth.oauth.denyAuthorization(authorization_id);
     if (err) { setBusy(false); setError(err.message); return; }
-    const target = (data as { redirect_url?: string; redirect_to?: string } | null)?.redirect_url
-      ?? (data as { redirect_to?: string } | null)?.redirect_to;
+    const d = data as unknown as { redirect_url?: string; redirect_to?: string } | null;
+    const target = d?.redirect_url ?? d?.redirect_to;
     if (!target) { setBusy(false); setError("No redirect returned by the authorization server."); return; }
     window.location.href = target;
   }
