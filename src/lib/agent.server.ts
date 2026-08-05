@@ -320,8 +320,8 @@ export async function runTradingCycle(): Promise<CycleReport> {
       const { data: firstSnap } = await supabaseAdmin
         .from("equity_snapshots").select("equity").eq("user_id", s.user_id)
         .gte("ts", dayStart.toISOString()).order("ts", { ascending: true }).limit(1);
-      const startEq = firstSnap?.[0] ? +firstSnap[0].equity : +s.paper_equity;
-      const nowEq = +s.paper_equity + unrealised;
+      const startEq = firstSnap?.[0] ? +firstSnap[0].equity : equityNow;
+      const nowEq = equityNow;
       const dayPct = ((nowEq - startEq) / (startEq || 1)) * 100;
       if (dayPct <= -Math.abs(+s.daily_loss_pct)) {
         await supabaseAdmin.from("bot_settings")
