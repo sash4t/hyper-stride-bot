@@ -171,6 +171,22 @@ export async function runTradingCycle(): Promise<CycleReport> {
 
         const reason = exitReasonFor(p.side, mark, p.stop_loss, p.take_profit);
         if (!reason) continue;
+
+        if (isLive && creds) {
+          const asset = (await assets()).get(p.coin);
+          if (!asset) { report.errors.push(`${p.coin}: unknown asset`); continue; }
+          try {
+            await marketOrder(creds, asset, {
+              isBuy: p.side === "short", size: p.size, markPrice: mark, reduceOnly: true, slippagePct: 0.6,
+            });
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            report.errors.push(`close ${p.coin}: ${msg}`);
+            await log(s.user_id, "error", `Live close failed for ${p.coin}: ${msg}`);
+            continue;
+          }
+        }
+
         const pnl = p.side === "long" ? (mark - p.entry_price) * p.size : (p.entry_price - mark) * p.size;
         realised += pnl;
         await supabaseAdmin.from("paper_positions").update({
@@ -179,8 +195,8 @@ export async function runTradingCycle(): Promise<CycleReport> {
         positions = positions.filter((x) => x.id !== p.id);
         report.closed++;
         await log(s.user_id, "trade",
-          `CLOSE ${p.side.toUpperCase()} ${p.coin} @ ${mark.toFixed(6)} · PnL ${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} USDC · ${reason}`,
-          { agent: "server", reason });
+          `${isLive ? "LIVE " : ""}CLOSE ${p.side.toUpperCase()} ${p.coin} @ ${mark.toFixed(6)} · PnL ${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} USDC · ${reason}`,
+          { agent: "server", reason, live: isLive });
       }
 
       if (realised !== 0) {
