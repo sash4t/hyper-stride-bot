@@ -212,13 +212,27 @@ export async function runTradingCycle(): Promise<CycleReport> {
         if (!m) continue;
         unrealised += p.side === "long" ? (+m - p.entry_price) * p.size : (p.entry_price - +m) * p.size;
       }
+
+      // Live accounts report real equity; paper tracks a simulated balance.
+      let equityNow = +s.paper_equity + unrealised;
+      if (isLive && creds) {
+        try {
+          const acct = await fetchLiveAccount(creds.accountAddress);
+          equityNow = acct.accountValue;
+          unrealised = acct.positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
+        } catch (err) {
+          notes.push(`live account read failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
       await supabaseAdmin.from("equity_snapshots").insert({
-        user_id: s.user_id, equity: +s.paper_equity + unrealised,
+        user_id: s.user_id, equity: equityNow,
         realized_pnl: realised, unrealized_pnl: unrealised,
       });
 
       // ---- 3. Look for new entries ----
-      if (!s.scalp_enabled) { notes.push("scanning paused"); }
+      if (!canTrade) { /* live mode without keys — never scan into orders */ }
+      else if (!s.scalp_enabled) { notes.push("scanning paused"); }
       else if (positions.length >= s.max_positions) { notes.push(`at max positions (${positions.length})`); }
       else {
         const held = new Set(positions.map((p) => p.coin));
@@ -237,7 +251,7 @@ export async function runTradingCycle(): Promise<CycleReport> {
           if (positions.filter((p) => bucket(p.coin) === b).length >= 2) continue;
 
           // Exposure guard
-          const equity = +s.paper_equity + unrealised;
+          const equity = equityNow;
           const leverage = Math.min(+s.max_leverage, target.meta.maxLeverage);
           const notional = equity * (+s.position_size_pct / 100) * leverage;
           const exposure = positions.reduce((sum, p) => sum + p.notional, 0);
@@ -257,10 +271,30 @@ export async function runTradingCycle(): Promise<CycleReport> {
           }
 
           const entry = mids[sig.coin] ? +mids[sig.coin] : sig.price;
-          const size = notional / entry;
+          let size = notional / entry;
           const sl = sig.side === "long" ? entry * (1 - exits.slPct / 100) : entry * (1 + exits.slPct / 100);
           const tp = sig.side === "long" ? entry * (1 + exits.tpPct / 100) : entry * (1 - exits.tpPct / 100);
           const reason = `${sig.side.toUpperCase()} ${sig.coin} [${sig.family}] — ${sig.reasons.join(" + ")} · AI: ${verdict.reason}`;
+
+          // ---- Live order ----
+          if (isLive && creds) {
+            const asset = (await assets()).get(sig.coin);
+            if (!asset) { report.errors.push(`${sig.coin}: unknown asset`); continue; }
+            // Hyperliquid enforces a $10 minimum order value.
+            if (size * entry < 10) { notes.push(`${sig.coin}: below $10 minimum order`); continue; }
+            try {
+              await setLeverage(creds, asset, leverage);
+              await marketOrder(creds, asset, {
+                isBuy: sig.side === "long", size, markPrice: entry, slippagePct: 0.6,
+              });
+              size = Number(size.toFixed(asset.szDecimals));
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              report.errors.push(`open ${sig.coin}: ${msg}`);
+              await log(s.user_id, "error", `Live order failed for ${sig.coin}: ${msg}`);
+              continue;
+            }
+          }
 
           const { data: inserted, error } = await supabaseAdmin.from("paper_positions").insert({
             user_id: s.user_id, coin: sig.coin, side: sig.side, size, notional: size * entry,
@@ -276,8 +310,8 @@ export async function runTradingCycle(): Promise<CycleReport> {
           held.add(sig.coin);
           report.opened++;
           await log(s.user_id, "trade",
-            `OPEN ${reason} @ ${entry.toFixed(6)} · SL ${sl.toFixed(6)} · TP ${tp.toFixed(6)}`,
-            { agent: "server" });
+            `${isLive ? "LIVE " : ""}OPEN ${reason} @ ${entry.toFixed(6)} · SL ${sl.toFixed(6)} · TP ${tp.toFixed(6)}`,
+            { agent: "server", live: isLive });
         }
       }
 
