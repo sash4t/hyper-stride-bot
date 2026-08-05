@@ -49,7 +49,7 @@ function Scanner() {
   const sorted = useMemo(() => rows, [rows]);
 
   return (
-    <div className="p-8 space-y-4">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Market scanner</h1>

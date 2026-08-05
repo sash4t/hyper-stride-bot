@@ -30,7 +30,7 @@ function Positions() {
   };
 
   return (
-    <div className="p-8 space-y-4">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4">
       <h1 className="text-2xl font-semibold">Open positions</h1>
       <div className="panel overflow-hidden">
         <table className="w-full text-sm">

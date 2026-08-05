@@ -80,7 +80,7 @@ function Dashboard() {
     : [{ t: Date.now() - 60_000, v: startEquity }, { t: Date.now(), v: equity }];
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Portfolio</h1>

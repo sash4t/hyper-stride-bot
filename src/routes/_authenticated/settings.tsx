@@ -43,7 +43,7 @@ function SettingsPage() {
   };
 
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-4xl">
       <div>
         <h1 className="text-2xl font-semibold">Settings & wallet</h1>
         <p className="text-sm text-muted-foreground">Read-only Hyperliquid account view. No private keys are ever stored server-side.</p>
