@@ -17,11 +17,12 @@ export const resetPaperAccount = createServerFn({ method: "POST" })
 
     if (fetchErr) throw new Error(fetchErr.message);
 
-    const mids = await fetch(HL_INFO, {
+    const res = await fetch(HL_INFO, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ type: "allMids" }),
-    }).then((r) => r.json() as Record<string, string>);
+    });
+    const mids = (await res.json()) as Record<string, string>;
 
     let closed = 0;
     for (const p of openPos ?? []) {
