@@ -136,20 +136,24 @@ function Dashboard() {
         ) : (
           <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
             <thead className="text-xs uppercase tracking-widest text-muted-foreground">
-              <tr className="border-b border-panel-border"><th className="py-2 text-left">Coin</th><th>Side</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">Size</th><th className="text-right">PnL</th><th className="text-right">SL / TP</th></tr>
+              <tr className="border-b border-panel-border"><th className="py-2 text-left">Coin</th><th className="text-right">PnL</th><th>Side</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">Size</th><th className="text-right">SL / TP</th></tr>
             </thead>
             <tbody>
               {openPos.map((p: any) => {
                 const mark = +(mids[p.coin] ?? p.entry_price);
                 const pnl = p.side === "long" ? (mark - +p.entry_price) * +p.size : (+p.entry_price - mark) * +p.size;
+                const margin = +p.notional / Math.max(1, +p.leverage);
                 return (
                   <tr key={p.id} className="border-b border-panel-border/50 mono">
                     <td className="py-2">{p.coin}</td>
+                    <td className={`text-right ${pnl >= 0 ? "text-bull" : "text-bear"}`}>
+                      <span className="font-semibold">{pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}</span>
+                      <span className="ml-1 text-xs opacity-70">({pnl >= 0 ? "+" : ""}{(margin > 0 ? (pnl / margin) * 100 : 0).toFixed(1)}%)</span>
+                    </td>
                     <td className={p.side === "long" ? "text-bull" : "text-bear"}>{p.side.toUpperCase()}</td>
                     <td className="text-right">{(+p.entry_price).toFixed(6)}</td>
                     <td className="text-right">{mark.toFixed(6)}</td>
                     <td className="text-right">{(+p.size).toFixed(4)}</td>
-                    <td className={`text-right ${pnl >= 0 ? "text-bull" : "text-bear"}`}>{pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}</td>
                     <td className="text-right text-xs text-muted-foreground">{(+p.stop_loss).toFixed(4)} / {(+p.take_profit).toFixed(4)}</td>
                   </tr>
                 );
