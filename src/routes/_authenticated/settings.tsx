@@ -4,18 +4,30 @@ import { useBot } from "@/lib/botContext";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchUserState, type UserState } from "@/lib/hyperliquid";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AgentPanel } from "@/components/AgentPanel";
 import { LiveTradingPanel } from "@/components/LiveTradingPanel";
+import { resetPaperAccount } from "@/lib/paper.functions";
+import { Loader2, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings")({ component: SettingsPage });
 
 function SettingsPage() {
-  const { userId } = useBot();
+  const { userId, syncPositions } = useBot();
   const [wallet, setWallet] = useState("");
   const [saving, setSaving] = useState(false);
   const [userState, setUserState] = useState<UserState | null>(null);
   const [loadingWallet, setLoadingWallet] = useState(false);
+  const resetFn = useServerFn(resetPaperAccount);
+  const reset = useMutation({
+    mutationFn: () => resetFn({ data: undefined }),
+    onSuccess: async (r) => {
+      toast.success(`Paper account reset: ${r.closed} position(s) closed, equity set to ${r.newEquity.toLocaleString()} USDC.`);
+      await syncPositions();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const { data: profile } = useQuery({
     queryKey: ["profile", userId],
@@ -95,6 +107,22 @@ function SettingsPage() {
 
       <AgentPanel />
       <LiveTradingPanel />
+
+      <div className="panel p-4 sm:p-5 space-y-4">
+        <div className="text-sm font-semibold">Reset paper account</div>
+        <p className="text-xs text-muted-foreground">
+          Close every open paper position at the current mark price and reset paper equity back to 10,000 USDC.
+          This only affects paper trading — it does not touch live Hyperliquid positions or real funds.
+        </p>
+        <button
+          onClick={() => reset.mutate()}
+          disabled={reset.isPending}
+          className="inline-flex items-center gap-2 rounded-md border border-panel-border px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
+        >
+          {reset.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+          {reset.isPending ? "Resetting…" : "Reset paper account"}
+        </button>
+      </div>
 
       <div className="panel p-4 sm:p-5 space-y-2">
         <div className="text-sm font-semibold">Real-money execution</div>
