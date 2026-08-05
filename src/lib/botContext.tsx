@@ -10,6 +10,7 @@ interface BotCtx {
   positionsVersion: number;      // bumped when engine mutates
   saveSettings: (patch: Partial<Settings>) => Promise<void>;
   killSwitch: () => Promise<void>;
+  syncPositions: () => Promise<void>;
   engine: PaperEngine | null;
 }
 
@@ -85,8 +86,14 @@ export function BotProvider({ children }: { children: React.ReactNode }) {
     toast.warning("Kill switch engaged. All paper positions flattened.");
   };
 
+  const syncPositions = async () => {
+    if (!engineRef.current) return;
+    await engineRef.current.syncPositions();
+    setVersion(v => v + 1);
+  };
+
   const value = useMemo(() => ({
-    userId, settings, mids, positionsVersion: version, saveSettings, killSwitch, engine: engineRef.current,
+    userId, settings, mids, positionsVersion: version, saveSettings, killSwitch, syncPositions, engine: engineRef.current,
   }), [userId, settings, mids, version]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
