@@ -84,10 +84,18 @@ function Strategy() {
         </div>
       </div>
 
-      <div className="panel p-5 text-xs text-muted-foreground">
-        <div className="mono uppercase tracking-widest text-warning mb-2">Strategy summary</div>
-        Trend + momentum + volatility confluence. Enters only when EMA20/50 aligns with the major trend (price above/below EMA100 &amp; EMA200), MACD is accelerating, RSI is in a momentum zone, and volume expands. ATR-based volatility gate rejects dead or unstable markets. Correlation guard prevents stacking more than 2 positions per sector.
+      <div className="panel p-5 text-xs text-muted-foreground space-y-2">
+        <div className="mono uppercase tracking-widest text-warning">Strategy summary</div>
+        <p>
+          Trend + momentum + volatility confluence on <strong>1-hour</strong> bars. Entries require a <strong>fresh EMA20/50 cross</strong> in the direction of the major trend (price above/below EMA100 &amp; EMA200), with MACD accelerating or RSI in a momentum zone. ATR-based volatility gate rejects dead or unstable markets. Correlation guard prevents stacking more than 2 positions per sector.
+        </p>
+        <p className="mono">
+          Backtest — 3 months, BTC / SOL / ARB / LINK / DOGE, 5x leverage, 5% equity per trade, fees included:
+          78 trades · 57.7% win rate · profit factor 1.78 · +8.1% return · 2.6% max drawdown.
+          Continuation entries and 15m bars were removed — they produced PF 0.66 and a −33% return over the same window.
+        </p>
       </div>
+
     </div>
   );
 }
