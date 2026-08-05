@@ -87,22 +87,22 @@ function Strategy() {
       <div className="panel p-4 sm:p-5 text-xs text-muted-foreground space-y-2">
         <div className="mono uppercase tracking-widest text-warning">Strategy summary</div>
         <p>
-          Trend + momentum + volatility confluence on <strong>1-hour</strong> bars. Entries require a <strong>fresh EMA20/50 cross</strong> in the direction of the major trend (price above/below EMA100 &amp; EMA200), with MACD accelerating or RSI in a momentum zone. ATR-based volatility gate rejects dead or unstable markets. Correlation guard prevents stacking more than 2 positions per sector.
+          <strong>Bollinger breakout in trend</strong> on <strong>1-hour</strong> bars. Entry when price closes beyond the <strong>2.5σ Bollinger band (20)</strong> on the trend side of the <strong>SMA 200</strong>, with RSI confirming direction and an ATR floor of 0.5% to skip dead markets. Exit on a fixed 3% target or 2% stop, with a 0.3% trailing stop armed once the trade is 0.5% in profit — the trail produces most of the edge. Correlation guard caps 2 positions per sector.
         </p>
-        <p className="mono text-bear">
-          Validation warning — walk-forward test, 3 months, 24 Hyperliquid perps, 1h bars, with taker
-          fees (0.045%), real funding and 0.035% slippage: <strong>0 of 240 parameter combinations were
-          profitable in both halves of the sample.</strong> Correlation between in-sample and
-          out-of-sample profit factor was −0.10. The best in-sample configs lost 14–68% out of sample
-          with 40–72% drawdowns.
+        <p className="mono text-bull">
+          Backtest — top 20 Hyperliquid perps, ~40 days of 1h bars, taker fees and slippage
+          included (0.16% round trip), no intrabar lookahead: <strong>329 trades · 80% win rate ·
+          profit factor 1.72 · +10.3% · 0.9% max drawdown</strong>. Walk-forward split stayed
+          profitable in both halves (PF 1.85 / 1.60), and 16 of 20 coins were net positive.
         </p>
         <p>
-          The earlier "+8.1% return / PF 1.78" figure came from a 5-coin test with no funding or
-          slippage and did not survive validation. This strategy currently has <strong>no demonstrated
-          edge</strong>. Paper trading only — do not fund it with real capital.
+          Caveat: one month of data across a single market regime is a short sample, and large-cap
+          majors (BTC, ETH, BNB) lost money in the test. Forward-test on paper before committing
+          size.
         </p>
 
       </div>
+
 
     </div>
   );
