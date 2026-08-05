@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const HL_INFO = "https://api.hyperliquid.xyz/info";
 const DEFAULT_PAPER_EQUITY = 10000;
 
 export const resetPaperAccount = createServerFn({ method: "POST" })
@@ -11,25 +10,13 @@ export const resetPaperAccount = createServerFn({ method: "POST" })
 
     const { data: openPos, error: fetchErr } = await supabaseAdmin
       .from("paper_positions")
-      .select("*")
+      .select("id")
       .eq("user_id", context.userId)
       .eq("status", "open");
 
     if (fetchErr) throw new Error(fetchErr.message);
 
-    const res = await fetch(HL_INFO, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ type: "allMids" }),
-    });
-    const mids = (await res.json()) as Record<string, string>;
-
-    let closed = 0;
-    for (const p of openPos ?? []) {
-      const mark = mids[p.coin] ? +mids[p.coin] : p.entry_price;
-      void mark;
-      closed++;
-    }
+    const closed = (openPos ?? []).length;
 
     // Wipe all paper history so stats/equity curve start clean
     await supabaseAdmin.from("paper_positions").delete().eq("user_id", context.userId);
