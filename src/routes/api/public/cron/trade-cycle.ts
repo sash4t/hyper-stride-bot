@@ -8,7 +8,10 @@ export const Route = createFileRoute("/api/public/cron/trade-cycle")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env["SUPABASE_ANON_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"];
+        const expected =
+          process.env["SUPABASE_ANON_KEY"] ??
+          process.env["SUPABASE_PUBLISHABLE_KEY"] ??
+          import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
         if (!expected) return new Response("Not configured", { status: 500 });
 
         const provided = (request.headers.get("apikey") ?? "").trim();
