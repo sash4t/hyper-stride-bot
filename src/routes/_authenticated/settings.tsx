@@ -4,7 +4,7 @@ import { useBot } from "@/lib/botContext";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchUserState, type UserState } from "@/lib/hyperliquid";
 import { toast } from "sonner";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AgentPanel } from "@/components/AgentPanel";
 import { LiveTradingPanel } from "@/components/LiveTradingPanel";
@@ -20,11 +20,13 @@ function SettingsPage() {
   const [userState, setUserState] = useState<UserState | null>(null);
   const [loadingWallet, setLoadingWallet] = useState(false);
   const resetFn = useServerFn(resetPaperAccount);
+  const queryClient = useQueryClient();
   const reset = useMutation({
     mutationFn: () => resetFn({ data: undefined }),
     onSuccess: async (r) => {
-      toast.success(`Paper account reset: ${r.closed} position(s) closed, equity set to ${r.newEquity.toLocaleString()} USDC.`);
+      toast.success(`Paper account reset: ${r.closed} position(s) cleared, equity set to ${r.newEquity.toLocaleString()} USDC.`);
       await syncPositions();
+      await queryClient.invalidateQueries();
     },
     onError: (e: Error) => toast.error(e.message),
   });
