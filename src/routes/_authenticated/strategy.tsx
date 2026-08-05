@@ -89,11 +89,19 @@ function Strategy() {
         <p>
           Trend + momentum + volatility confluence on <strong>1-hour</strong> bars. Entries require a <strong>fresh EMA20/50 cross</strong> in the direction of the major trend (price above/below EMA100 &amp; EMA200), with MACD accelerating or RSI in a momentum zone. ATR-based volatility gate rejects dead or unstable markets. Correlation guard prevents stacking more than 2 positions per sector.
         </p>
-        <p className="mono">
-          Backtest — 3 months, BTC / SOL / ARB / LINK / DOGE, 5x leverage, 5% equity per trade, fees included:
-          78 trades · 57.7% win rate · profit factor 1.78 · +8.1% return · 2.6% max drawdown.
-          Continuation entries and 15m bars were removed — they produced PF 0.66 and a −33% return over the same window.
+        <p className="mono text-bear">
+          Validation warning — walk-forward test, 3 months, 24 Hyperliquid perps, 1h bars, with taker
+          fees (0.045%), real funding and 0.035% slippage: <strong>0 of 240 parameter combinations were
+          profitable in both halves of the sample.</strong> Correlation between in-sample and
+          out-of-sample profit factor was −0.10. The best in-sample configs lost 14–68% out of sample
+          with 40–72% drawdowns.
         </p>
+        <p>
+          The earlier "+8.1% return / PF 1.78" figure came from a 5-coin test with no funding or
+          slippage and did not survive validation. This strategy currently has <strong>no demonstrated
+          edge</strong>. Paper trading only — do not fund it with real capital.
+        </p>
+
       </div>
 
     </div>
