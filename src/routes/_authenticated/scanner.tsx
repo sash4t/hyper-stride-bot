@@ -33,7 +33,7 @@ function Scanner() {
     for (const r of targets) {
       const now = Date.now();
       try {
-        const cs = await fetchCandles(r.meta.name, "15m", now - 220 * 15 * 60_000, now);
+        const cs = await fetchCandles(r.meta.name, "1h", now - 220 * 60 * 60_000, now);
         const bars = candlesToBars(cs);
         if (bars.length >= 210) {
           const sig = evaluateSignal(r.meta.name, bars);

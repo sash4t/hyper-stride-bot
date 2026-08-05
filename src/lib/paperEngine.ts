@@ -214,7 +214,7 @@ export class PaperEngine {
       if (!bars || now - (cached?.lastFetch ?? 0) > 5 * 60 * 1000) {
         try {
           const end = now;
-          const start = end - BARS_NEEDED * 15 * 60 * 1000;
+          const start = end - BARS_NEEDED * CANDLE_MS;
           const cs = await fetchCandles(meta.name, CANDLE_INTERVAL, start, end);
           bars = candlesToBars(cs);
           this.cache.set(meta.name, { bars, lastFetch: now, nextEval: now + 30_000 });
