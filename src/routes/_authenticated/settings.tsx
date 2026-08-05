@@ -6,6 +6,7 @@ import { fetchUserState, type UserState } from "@/lib/hyperliquid";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { AgentPanel } from "@/components/AgentPanel";
+import { LiveTradingPanel } from "@/components/LiveTradingPanel";
 
 export const Route = createFileRoute("/_authenticated/settings")({ component: SettingsPage });
 
@@ -93,6 +94,7 @@ function SettingsPage() {
       </div>
 
       <AgentPanel />
+      <LiveTradingPanel />
 
       <div className="panel p-4 sm:p-5 space-y-2">
         <div className="text-sm font-semibold">Real-money execution</div>
