@@ -102,8 +102,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      <Toaster theme="dark" position="bottom-center" mobileOffset={{ bottom: 16 }} richColors closeButton className="sm:!hidden" />
-      <Toaster theme="dark" position="top-right" richColors closeButton className="hidden sm:!block" />
+      <Toaster theme="dark" position="bottom-right" richColors closeButton />
     </QueryClientProvider>
   );
 }
