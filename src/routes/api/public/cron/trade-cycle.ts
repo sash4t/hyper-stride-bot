@@ -8,12 +8,21 @@ export const Route = createFileRoute("/api/public/cron/trade-cycle")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["CRON_SECRET"];
-        if (!secret) return new Response("Not configured", { status: 500 });
+        const expected = process.env["SUPABASE_ANON_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"];
+        if (!expected) return new Response("Not configured", { status: 500 });
 
-        const provided = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
-        if (provided.length !== secret.length || provided !== secret) {
+        const provided = (request.headers.get("apikey") ?? "").trim();
+        if (provided.length !== expected.length || provided !== expected) {
           return new Response("Unauthorized", { status: 401 });
+        }
+
+        if (new URL(request.url).searchParams.get("selftest") === "1") {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data: u } = await supabaseAdmin.from("bot_settings").select("user_id").limit(1);
+          const { error } = await supabaseAdmin.from("bot_events").insert({
+            user_id: u?.[0]?.user_id as string, level: "info", message: "selftest", meta: null,
+          });
+          return Response.json({ selftest: true, error: error?.message ?? null });
         }
 
         try {
