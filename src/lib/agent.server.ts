@@ -131,6 +131,13 @@ export async function runTradingCycle(): Promise<CycleReport> {
     const s = raw as unknown as Settings;
     const notes: string[] = [];
     try {
+      const isLive = s.mode === "live";
+      if (isLive && !creds) {
+        notes.push("live mode on but API wallet not configured — no orders sent");
+        await log(s.user_id, "error", "Live mode is on but Hyperliquid API credentials are missing.");
+      }
+      const canTrade = !isLive || !!creds;
+
       const exits: ExitParams = {
         tpPct: +s.scalp_tp_pct,
         slPct: +s.scalp_sl_pct,
