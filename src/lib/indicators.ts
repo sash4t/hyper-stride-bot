@@ -79,4 +79,28 @@ export function atr(candles: { h: number; l: number; c: number }[], period = 14)
   return out;
 }
 
+/** Rolling standard deviation around a given mean series (population sigma). */
+export function stddev(values: number[], period: number, mean: number[]): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < values.length; i++) {
+    if (i < period - 1 || !isFinite(mean[i])) { out.push(NaN); continue; }
+    let s = 0;
+    for (let j = i - period + 1; j <= i; j++) s += (values[j] - mean[i]) ** 2;
+    out.push(Math.sqrt(s / period));
+  }
+  return out;
+}
+
+export interface BollingerBands { mid: number[]; upper: number[]; lower: number[]; width: number[] }
+
+/** Bollinger bands: SMA(period) +/- k * stddev(period). */
+export function bollinger(values: number[], period = 20, k = 2.5): BollingerBands {
+  const mid = sma(values, period);
+  const sd = stddev(values, period, mid);
+  const upper = mid.map((m, i) => m + k * sd[i]);
+  const lower = mid.map((m, i) => m - k * sd[i]);
+  const width = mid.map((m, i) => ((upper[i] - lower[i]) / m) * 100);
+  return { mid, upper, lower, width };
+}
+
 export function last<T>(arr: T[]): T | undefined { return arr[arr.length - 1]; }
