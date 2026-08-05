@@ -215,9 +215,8 @@ export class PaperEngine {
     const EXCLUDED_COINS = new Set(["BTC", "ETH"]);
     const scored = this.meta
       .map((m, i) => ({ meta: m, ctx: this.ctxs[i] }))
-      .filter(x => x.ctx && +x.ctx.dayNtlVlm > 5_000_000 && !EXCLUDED_COINS.has(x.meta.name))
-      .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm)
-      .slice(0, 40);
+      .filter(x => x.ctx && +x.ctx.dayNtlVlm > 100_000 && !EXCLUDED_COINS.has(x.meta.name))
+      .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm);
 
     for (const { meta } of scored) {
       if (this.positions.length >= this.settings.max_positions) break;
