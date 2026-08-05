@@ -80,10 +80,11 @@ export async function runTradingCycle(): Promise<CycleReport> {
   report.users = users.length;
 
   const log = async (userId: string, level: Level, message: string, meta?: unknown) => {
-    await supabaseAdmin.from("bot_events").insert({
+    const { error } = await supabaseAdmin.from("bot_events").insert({
       user_id: userId, level, message,
       meta: meta === undefined ? null : (JSON.parse(JSON.stringify(meta)) as never),
     });
+    if (error) report.errors.push(`log: ${error.message}`);
   };
 
   // Shared market data — one fetch per cycle, not per user.

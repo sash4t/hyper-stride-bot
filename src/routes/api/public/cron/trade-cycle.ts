@@ -8,11 +8,14 @@ export const Route = createFileRoute("/api/public/cron/trade-cycle")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["CRON_SECRET"];
-        if (!secret) return new Response("Not configured", { status: 500 });
+        const expected =
+          process.env["SUPABASE_ANON_KEY"] ??
+          process.env["SUPABASE_PUBLISHABLE_KEY"] ??
+          import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+        if (!expected) return new Response("Not configured", { status: 500 });
 
-        const provided = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
-        if (provided.length !== secret.length || provided !== secret) {
+        const provided = (request.headers.get("apikey") ?? "").trim();
+        if (provided.length !== expected.length || provided !== expected) {
           return new Response("Unauthorized", { status: 401 });
         }
 
