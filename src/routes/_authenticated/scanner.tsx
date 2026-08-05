@@ -29,7 +29,7 @@ function Scanner() {
 
   const runScan = async () => {
     setScanningAll(true);
-    const targets = rows.slice(0, 30);
+    const targets = rows;
     const updated = [...rows];
     for (const r of targets) {
       const now = Date.now();
@@ -57,13 +57,13 @@ function Scanner() {
           <p className="text-sm text-muted-foreground">All Hyperliquid USDC perpetual markets, ranked by 24h volume.</p>
         </div>
         <button onClick={runScan} disabled={scanningAll} className="w-full shrink-0 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-50 sm:w-auto">
-          {scanningAll ? <><Loader2 className="mr-2 inline h-3.5 w-3.5 animate-spin" />Scanning top 30…</> : "Scan top 30 for signals"}
+          {scanningAll ? <><Loader2 className="mr-2 inline h-3.5 w-3.5 animate-spin" />Scanning all markets…</> : "Scan all markets for signals"}
         </button>
       </div>
 
       {loading ? <div className="py-20 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /> Loading markets…</div> : (
         <><div className="space-y-3 md:hidden">
-          {sorted.slice(0, 60).map(r => {
+          {sorted.map(r => {
             const mark = +(mids[r.meta.name] ?? r.ctx.markPx);
             const fund = +r.ctx.funding * 100;
             return (
@@ -100,7 +100,7 @@ function Scanner() {
               </tr>
             </thead>
             <tbody>
-              {sorted.slice(0, 100).map(r => {
+              {sorted.map(r => {
                 const mark = +(mids[r.meta.name] ?? r.ctx.markPx);
                 const fund = +r.ctx.funding * 100;
                 return (
