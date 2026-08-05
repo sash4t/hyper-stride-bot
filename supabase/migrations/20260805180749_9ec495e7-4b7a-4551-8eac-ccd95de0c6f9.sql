@@ -1,0 +1,2 @@
+ALTER TABLE public.bot_events DROP CONSTRAINT IF EXISTS bot_events_level_check;
+ALTER TABLE public.bot_events ADD CONSTRAINT bot_events_level_check CHECK (level IN ('info','warn','error','trade','ai','debug'));

@@ -1,4 +1,4 @@
-import { NoObjectGeneratedError, Output, streamText } from "ai";
+import { NoObjectGeneratedError, generateObject } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { candlesToBars, bucket, type Bar } from "./strategy";
@@ -9,8 +9,9 @@ const INTERVAL = "1h";
 const INTERVAL_MS = 60 * 60 * 1000;
 const BARS = 230;
 /** Coins examined per cycle. Rotated so the whole liquid universe is covered. */
-const SCAN_PER_CYCLE = 8;
+const SCAN_PER_CYCLE = 20;
 const UNIVERSE_SIZE = 40;
+const MIN_24H_VOLUME = 1_000_000;
 
 type Level = "info" | "warn" | "error" | "trade" | "ai";
 
@@ -94,7 +95,7 @@ export async function runTradingCycle(): Promise<CycleReport> {
   const EXCLUDED_COINS = new Set(["BTC", "ETH"]);
   const liquid = meta.universe
     .map((m, i) => ({ meta: m, ctx: ctxs[i] }))
-    .filter((x) => x.ctx && +x.ctx.dayNtlVlm > 5_000_000 && !EXCLUDED_COINS.has(x.meta.name))
+    .filter((x) => x.ctx && +x.ctx.dayNtlVlm > MIN_24H_VOLUME && !EXCLUDED_COINS.has(x.meta.name))
     .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm)
     .slice(0, UNIVERSE_SIZE);
 
@@ -120,7 +121,9 @@ export async function runTradingCycle(): Promise<CycleReport> {
         type: "candleSnapshot",
         req: { coin, interval: INTERVAL, startTime: end - BARS * INTERVAL_MS, endTime: end },
       });
-      const bars = candlesToBars(candles as never);
+      // Drop the still-forming candle: the strategy is validated on bar closes,
+      // and a partial bar rarely sits outside the band when the cycle runs.
+      const bars = candlesToBars(candles as never).slice(0, -1);
       barCache.set(coin, bars);
       return bars;
     } catch {
@@ -237,6 +240,13 @@ export async function runTradingCycle(): Promise<CycleReport> {
       else if (positions.length >= s.max_positions) { notes.push(`at max positions (${positions.length})`); }
       else {
         const held = new Set(positions.map((p) => p.coin));
+        // A closed-bar signal stays true for the whole hour, so only take a coin
+        // once per bar — otherwise a stop-out would instantly re-enter.
+        const barOpen = new Date(Math.floor(Date.now() / INTERVAL_MS) * INTERVAL_MS).toISOString();
+        const { data: recent } = await supabaseAdmin
+          .from("paper_positions").select("coin")
+          .eq("user_id", s.user_id).gte("opened_at", barOpen);
+        for (const r of recent ?? []) held.add(r.coin);
         for (const target of scanTargets) {
           if (positions.length >= s.max_positions) break;
           if (held.has(target.meta.name)) continue;
@@ -251,20 +261,23 @@ export async function runTradingCycle(): Promise<CycleReport> {
           const b = bucket(sig.coin);
           if (positions.filter((p) => bucket(p.coin) === b).length >= 2) continue;
 
-          // Exposure guard
+          // Exposure guard — shrink the trade into the remaining headroom
+          // instead of skipping it, so a small cap still allows one position.
           const equity = equityNow;
           const leverage = Math.min(+s.max_leverage, target.meta.maxLeverage);
-          const notional = equity * (+s.position_size_pct / 100) * leverage;
+          const capNotional = equity * (+s.max_exposure_pct / 100) * +s.max_leverage;
           const exposure = positions.reduce((sum, p) => sum + p.notional, 0);
-          if (exposure + notional > equity * (+s.max_exposure_pct / 100) * +s.max_leverage) {
+          const headroom = capNotional - exposure;
+          if (headroom <= capNotional * 0.05) {
             notes.push("exposure cap reached");
             break;
           }
+          const notional = Math.min(equity * (+s.position_size_pct / 100) * leverage, headroom);
 
           // ---- AI review ----
           let verdict = { approve: true, reason: "AI review disabled", risk: "unknown" as string };
           if (s.ai_review_enabled) {
-            verdict = await reviewSignal(sig, target.ctx, positions.map((p) => `${p.side} ${p.coin}`));
+            verdict = await reviewSignal(sig, target.ctx, positions.map((p) => `${p.side} ${p.coin}`), exits);
             await log(s.user_id, "ai",
               `${verdict.approve ? "APPROVED" : "VETOED"} ${sig.side.toUpperCase()} ${sig.coin} — ${verdict.reason}`,
               { signal: sig, verdict });
@@ -356,12 +369,12 @@ const ReviewSchema = z.object({
 
 /** Second opinion on a mechanical signal. Fails open to a veto — never guesses "yes" on error. */
 async function reviewSignal(
-  sig: ScalpSignal, ctx: AssetCtx, openPositions: string[],
+  sig: ScalpSignal, ctx: AssetCtx, openPositions: string[], exits: ExitParams,
 ): Promise<{ approve: boolean; risk: string; reason: string }> {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) return { approve: false, risk: "unknown", reason: "AI reviewer unavailable (no key)" };
 
-  const gateway = createLovableAiGatewayProvider(key);
+  const gateway = createLovableAiGatewayProvider(key, undefined, { structuredOutputs: true });
   const prompt = [
     `Candidate quick trade on Hyperliquid perpetuals (paper account).`,
     `Coin: ${sig.coin}`,
@@ -373,20 +386,19 @@ async function reviewSignal(
     `Funding rate: ${ctx.funding} · 24h volume: ${(+ctx.dayNtlVlm / 1e6).toFixed(1)}M · open interest: ${ctx.openInterest}`,
     `Currently open: ${openPositions.length ? openPositions.join(", ") : "none"}`,
     ``,
-    `Target is +${2}% with a trailing stop; the stop is roughly 1% away. Round-trip cost is about 0.13%.`,
+    `Target is +${exits.tpPct}% with a ${exits.trailDistPct}% trailing stop armed at +${exits.trailActivatePct}%; the hard stop is ${exits.slPct}% away. Round-trip cost is about 0.13%.`,
     `Approve only if the setup plausibly reaches target before stop. Veto on: funding strongly against the direction,`,
     `thin volume, over-concentration versus open positions, or a signal that looks like chop.`,
     `Keep "reason" under 25 words.`,
   ].join("\n");
 
   try {
-    const result = streamText({
+    const { object: out } = await generateObject({
       model: gateway("google/gemini-3.6-flash"),
+      schema: ReviewSchema,
       system: "You are a disciplined risk officer reviewing automated trade entries. Be skeptical; vetoing a marginal trade is cheaper than taking it.",
       prompt,
-      output: Output.object({ schema: ReviewSchema }),
     });
-    const out = await result.output;
     return { approve: !!out.approve, risk: String(out.risk ?? "unknown"), reason: String(out.reason ?? "").slice(0, 200) };
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error)) {
