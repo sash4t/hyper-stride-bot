@@ -96,8 +96,7 @@ export async function runTradingCycle(): Promise<CycleReport> {
   const liquid = meta.universe
     .map((m, i) => ({ meta: m, ctx: ctxs[i] }))
     .filter((x) => x.ctx && +x.ctx.dayNtlVlm > MIN_24H_VOLUME && !EXCLUDED_COINS.has(x.meta.name))
-    .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm)
-    .slice(0, UNIVERSE_SIZE);
+    .sort((a, b) => +b.ctx.dayNtlVlm - +a.ctx.dayNtlVlm);
 
   // Rotate the scan window by wall-clock minute so every coin gets looked at.
   const minute = Math.floor(Date.now() / 60_000);
