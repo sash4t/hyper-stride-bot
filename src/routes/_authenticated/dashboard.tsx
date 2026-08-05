@@ -81,25 +81,25 @@ function Dashboard() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Portfolio</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Portfolio</h1>
           <p className="text-sm text-muted-foreground">Paper trading · Hyperliquid USDC perpetuals</p>
         </div>
-        <div className="mono text-right text-xs text-muted-foreground">
+        <div className="mono text-xs text-muted-foreground sm:text-right">
           <div>Bot: <span className={settings?.bot_enabled ? "text-bull" : "text-warning"}>{settings?.bot_enabled ? "RUNNING" : "STOPPED"}</span></div>
           <div>Mode: <span className="text-foreground">{settings?.strategy_mode?.toUpperCase()}</span></div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <Metric label="Account equity" value={fmt(equity)} sub={`Start ${fmt(startEquity)} USDC`} icon={Wallet} />
         <Metric label="Unrealized PnL" value={`${unrealizedPnl >= 0 ? "+" : ""}${fmt(unrealizedPnl)}`} color={unrealizedPnl >= 0 ? "text-bull" : "text-bear"} icon={unrealizedPnl >= 0 ? TrendingUp : TrendingDown} />
         <Metric label="Realized PnL" value={`${realizedPnl >= 0 ? "+" : ""}${fmt(realizedPnl)}`} color={realizedPnl >= 0 ? "text-bull" : "text-bear"} icon={Activity} />
         <Metric label="Used notional" value={fmt(usedNotional)} sub={`${((usedNotional / (equity * (settings?.max_leverage ?? 5))) * 100).toFixed(1)}% of cap`} icon={ShieldAlert} />
       </div>
 
-      <div className="panel p-5">
+      <div className="panel p-4 sm:p-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <div className="text-sm font-semibold">Equity curve</div>
@@ -121,7 +121,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
         <Metric label="Win rate" value={`${winRate.toFixed(1)}%`} sub={`${wins.length}W / ${losses.length}L`} />
         <Metric label="Avg winner" value={fmt(avgWin)} color="text-bull" />
         <Metric label="Avg loser" value={fmt(avgLoss)} color="text-bear" />
@@ -129,12 +129,12 @@ function Dashboard() {
         <Metric label="Max drawdown" value={`${maxDDpct.toFixed(2)}%`} color="text-bear" />
       </div>
 
-      <div className="panel p-5">
+      <div className="panel p-4 sm:p-5">
         <div className="mb-3 text-sm font-semibold">Open positions ({openPos.length})</div>
         {openPos.length === 0 ? (
           <div className="py-10 text-center text-sm text-muted-foreground">No open positions. The bot will open positions when a high-confidence signal appears.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
             <thead className="text-xs uppercase tracking-widest text-muted-foreground">
               <tr className="border-b border-panel-border"><th className="py-2 text-left">Coin</th><th>Side</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">Size</th><th className="text-right">PnL</th><th className="text-right">SL / TP</th></tr>
             </thead>
@@ -155,7 +155,7 @@ function Dashboard() {
                 );
               })}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
     </div>

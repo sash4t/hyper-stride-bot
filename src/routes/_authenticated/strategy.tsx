@@ -30,14 +30,14 @@ function Strategy() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold">Strategy & risk</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Strategy & risk</h1>
         <p className="text-sm text-muted-foreground">All limits enforced by the paper engine on every trade evaluation.</p>
       </div>
 
-      <div className="panel p-5">
+      <div className="panel p-4 sm:p-5">
         <div className="text-sm font-semibold">Trading mode</div>
         <div className="mt-1 text-xs text-muted-foreground">Only paper trading is available in the browser. Live 24/7 execution requires the standalone executor service.</div>
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {modes.map(m => (
             <button key={m.key} onClick={() => saveSettings({ strategy_mode: m.key, min_confidence: MODE_MIN_CONFIDENCE[m.key] })}
               className={`rounded-md border p-4 text-left ${settings.strategy_mode === m.key ? "border-primary bg-primary/10" : "border-panel-border bg-background hover:bg-accent"}`}>
@@ -48,9 +48,9 @@ function Strategy() {
         </div>
       </div>
 
-      <div className="panel p-5 space-y-5">
+      <div className="panel p-4 sm:p-5 space-y-5">
         <div className="text-sm font-semibold">Risk limits</div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <NumField label="Paper equity" value={settings.paper_equity} onChange={v => saveSettings({ paper_equity: v })} step={100} suffix="USDC" />
           <NumField label="Max leverage" value={settings.max_leverage} onChange={v => saveSettings({ max_leverage: Math.min(20, Math.max(1, v)) })} step={1} suffix="x" />
           <NumField label="Position size" value={settings.position_size_pct} onChange={v => saveSettings({ position_size_pct: Math.min(10, Math.max(0.5, v)) })} step={0.5} suffix="% equity" />
@@ -61,9 +61,9 @@ function Strategy() {
         </div>
       </div>
 
-      <div className="panel p-5 space-y-5">
+      <div className="panel p-4 sm:p-5 space-y-5">
         <div className="text-sm font-semibold">Exit rules</div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           <label className="block">
             <div className="mb-1.5 text-xs uppercase tracking-widest text-muted-foreground">Stop-loss type</div>
             <select value={settings.sl_type} onChange={e => saveSettings({ sl_type: e.target.value as any })}
@@ -74,7 +74,7 @@ function Strategy() {
           <NumField label="ATR multiplier" value={settings.sl_atr_mult} onChange={v => saveSettings({ sl_atr_mult: v })} step={0.1} />
           <NumField label="Fixed SL %" value={settings.sl_fixed_pct} onChange={v => saveSettings({ sl_fixed_pct: v })} step={0.1} suffix="%" />
           <NumField label="TP / SL ratio" value={settings.tp_rr} onChange={v => saveSettings({ tp_rr: v })} step={0.25} suffix=":1" />
-          <label className="col-span-2 flex items-center gap-3">
+          <label className="flex items-center gap-3 sm:col-span-2">
             <input type="checkbox" checked={settings.trailing_enabled} onChange={e => saveSettings({ trailing_enabled: e.target.checked })} />
             <div>
               <div className="text-sm font-medium">Trailing stop</div>
@@ -84,7 +84,7 @@ function Strategy() {
         </div>
       </div>
 
-      <div className="panel p-5 text-xs text-muted-foreground space-y-2">
+      <div className="panel p-4 sm:p-5 text-xs text-muted-foreground space-y-2">
         <div className="mono uppercase tracking-widest text-warning">Strategy summary</div>
         <p>
           Trend + momentum + volatility confluence on <strong>1-hour</strong> bars. Entries require a <strong>fresh EMA20/50 cross</strong> in the direction of the major trend (price above/below EMA100 &amp; EMA200), with MACD accelerating or RSI in a momentum zone. ATR-based volatility gate rejects dead or unstable markets. Correlation guard prevents stacking more than 2 positions per sector.

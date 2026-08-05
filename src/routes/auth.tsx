@@ -49,7 +49,7 @@ function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="panel w-full max-w-md p-8">
+      <div className="panel w-full max-w-md p-6 sm:p-8">
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded bg-primary" />
           <span className="mono text-sm font-semibold">ALETHEIA</span>
