@@ -35,16 +35,21 @@ function Positions() {
       <div className="panel overflow-hidden">
         <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm">
           <thead className="border-b border-panel-border text-xs uppercase tracking-widest text-muted-foreground">
-            <tr><th className="p-3 text-left">Coin</th><th>Side</th><th className="text-right">Size</th><th className="text-right">Lev</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">SL</th><th className="text-right">TP</th><th className="text-right">PnL</th><th className="text-right">Conf</th><th></th></tr>
+            <tr><th className="p-3 text-left">Coin</th><th className="text-right">PnL</th><th>Side</th><th className="text-right">Size</th><th className="text-right">Lev</th><th className="text-right">Entry</th><th className="text-right">Mark</th><th className="text-right">SL</th><th className="text-right">TP</th><th className="text-right">Conf</th><th></th></tr>
           </thead>
           <tbody>
             {data.length === 0 && <tr><td colSpan={11} className="py-16 text-center text-sm text-muted-foreground">No open positions</td></tr>}
             {data.map((p: any) => {
               const mark = +(mids[p.coin] ?? p.entry_price);
               const pnl = p.side === "long" ? (mark - +p.entry_price) * +p.size : (+p.entry_price - mark) * +p.size;
+              const margin = +p.notional / Math.max(1, +p.leverage);
               return (
                 <tr key={p.id} className="border-b border-panel-border/50 mono">
                   <td className="p-3">{p.coin}</td>
+                  <td className={`text-right ${pnl >= 0 ? "text-bull" : "text-bear"}`}>
+                    <span className="font-semibold">{pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}</span>
+                    <span className="ml-1 text-xs opacity-70">({pnl >= 0 ? "+" : ""}{(margin > 0 ? (pnl / margin) * 100 : 0).toFixed(1)}%)</span>
+                  </td>
                   <td className={p.side === "long" ? "text-bull" : "text-bear"}>{p.side.toUpperCase()}</td>
                   <td className="text-right">{(+p.size).toFixed(4)}</td>
                   <td className="text-right">{(+p.leverage).toFixed(0)}x</td>
@@ -52,7 +57,6 @@ function Positions() {
                   <td className="text-right">{mark.toFixed(6)}</td>
                   <td className="text-right text-bear">{(+p.stop_loss).toFixed(6)}</td>
                   <td className="text-right text-bull">{(+p.take_profit).toFixed(6)}</td>
-                  <td className={`text-right ${pnl >= 0 ? "text-bull" : "text-bear"}`}>{pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}</td>
                   <td className="text-right">{(+p.confidence).toFixed(0)}</td>
                   <td className="p-3 text-right">
                     <button disabled={busy === p.id} onClick={() => close(p)} className="rounded bg-bear/20 px-2 py-1 text-xs font-semibold text-bear hover:bg-bear/30 disabled:opacity-50">Close</button>
