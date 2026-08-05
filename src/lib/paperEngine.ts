@@ -86,14 +86,7 @@ export class PaperEngine {
     if (this.running) return;
     this.running = true;
     this.log("info", "Engine starting (paper mode)");
-    // Load current open positions
-    const { data: openPos } = await supabase.from("paper_positions").select("*").eq("user_id", this.userId).eq("status", "open");
-    this.positions = (openPos ?? []).map(p => ({
-      id: p.id, coin: p.coin, side: p.side as "long" | "short", size: +p.size, notional: +p.notional,
-      leverage: +p.leverage, entry_price: +p.entry_price, stop_loss: +p.stop_loss,
-      take_profit: +p.take_profit, trail_high: p.trail_high != null ? +p.trail_high : null,
-      confidence: +p.confidence,
-    }));
+    await this.syncPositions();
     // Prime meta + prices
     const [m, c] = await fetchMetaAndCtxs();
     this.meta = m.universe;
@@ -103,6 +96,18 @@ export class PaperEngine {
     this.tickTimer = setInterval(() => this.tick(), 2000);
     // Strategy eval — every 15s scan a slice of universe
     this.evalTimer = setInterval(() => this.evalCycle().catch(err => this.log("error", err.message)), 15000);
+  }
+
+  async syncPositions() {
+    // Load current open positions from DB so the engine never manages stale rows.
+    const { data: openPos } = await supabase.from("paper_positions").select("*").eq("user_id", this.userId).eq("status", "open");
+    this.positions = (openPos ?? []).map(p => ({
+      id: p.id, coin: p.coin, side: p.side as "long" | "short", size: +p.size, notional: +p.notional,
+      leverage: +p.leverage, entry_price: +p.entry_price, stop_loss: +p.stop_loss,
+      take_profit: +p.take_profit, trail_high: p.trail_high != null ? +p.trail_high : null,
+      confidence: +p.confidence,
+    }));
+    this.log("info", `Synced ${this.positions.length} open paper position(s)`);
   }
 
   stop() {
