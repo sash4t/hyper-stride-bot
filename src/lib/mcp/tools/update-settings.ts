@@ -30,8 +30,9 @@ export default defineTool({
       const { supabase, userId } = requireUser(ctx);
       const patch = Object.fromEntries(
         Object.entries(input).filter(([, value]) => value !== undefined),
-      );
+      ) as Record<string, never>;
       if (Object.keys(patch).length === 0) return errorResult("No settings supplied.");
+
 
       const { data, error } = await supabase
         .from("bot_settings")
