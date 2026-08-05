@@ -38,7 +38,10 @@ export interface OpenPosition {
 
 type Log = (level: "info" | "warn" | "error" | "trade", msg: string, meta?: any) => void;
 
-const CANDLE_INTERVAL = "15m";
+// Backtested (3mo, BTC/SOL/ARB/LINK/DOGE): 1h bars materially outperform 15m —
+// 15m churns (1217 trades, PF 0.66) while 1h fresh-cross entries yield PF 1.78.
+const CANDLE_INTERVAL = "1h";
+const CANDLE_MS = 60 * 60 * 1000;
 const BARS_NEEDED = 220;
 
 interface CoinCache { bars: Bar[]; lastFetch: number; nextEval: number }
@@ -211,7 +214,7 @@ export class PaperEngine {
       if (!bars || now - (cached?.lastFetch ?? 0) > 5 * 60 * 1000) {
         try {
           const end = now;
-          const start = end - BARS_NEEDED * 15 * 60 * 1000;
+          const start = end - BARS_NEEDED * CANDLE_MS;
           const cs = await fetchCandles(meta.name, CANDLE_INTERVAL, start, end);
           bars = candlesToBars(cs);
           this.cache.set(meta.name, { bars, lastFetch: now, nextEval: now + 30_000 });
