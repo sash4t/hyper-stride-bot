@@ -43,9 +43,12 @@ export type Database = {
       }
       bot_settings: {
         Row: {
+          ai_review_enabled: boolean
           bot_enabled: boolean
           daily_loss_pct: number
           kill_switch_engaged: boolean
+          last_cycle_at: string | null
+          last_cycle_note: string | null
           max_exposure_pct: number
           max_leverage: number
           max_positions: number
@@ -53,19 +56,28 @@ export type Database = {
           mode: string
           paper_equity: number
           position_size_pct: number
+          scalp_enabled: boolean
+          scalp_sl_pct: number
+          scalp_tp_pct: number
+          server_agent_enabled: boolean
           sl_atr_mult: number
           sl_fixed_pct: number
           sl_type: string
           strategy_mode: string
           tp_rr: number
+          trail_activate_pct: number
+          trail_dist_pct: number
           trailing_enabled: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
+          ai_review_enabled?: boolean
           bot_enabled?: boolean
           daily_loss_pct?: number
           kill_switch_engaged?: boolean
+          last_cycle_at?: string | null
+          last_cycle_note?: string | null
           max_exposure_pct?: number
           max_leverage?: number
           max_positions?: number
@@ -73,19 +85,28 @@ export type Database = {
           mode?: string
           paper_equity?: number
           position_size_pct?: number
+          scalp_enabled?: boolean
+          scalp_sl_pct?: number
+          scalp_tp_pct?: number
+          server_agent_enabled?: boolean
           sl_atr_mult?: number
           sl_fixed_pct?: number
           sl_type?: string
           strategy_mode?: string
           tp_rr?: number
+          trail_activate_pct?: number
+          trail_dist_pct?: number
           trailing_enabled?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
+          ai_review_enabled?: boolean
           bot_enabled?: boolean
           daily_loss_pct?: number
           kill_switch_engaged?: boolean
+          last_cycle_at?: string | null
+          last_cycle_note?: string | null
           max_exposure_pct?: number
           max_leverage?: number
           max_positions?: number
@@ -93,11 +114,17 @@ export type Database = {
           mode?: string
           paper_equity?: number
           position_size_pct?: number
+          scalp_enabled?: boolean
+          scalp_sl_pct?: number
+          scalp_tp_pct?: number
+          server_agent_enabled?: boolean
           sl_atr_mult?: number
           sl_fixed_pct?: number
           sl_type?: string
           strategy_mode?: string
           tp_rr?: number
+          trail_activate_pct?: number
+          trail_dist_pct?: number
           trailing_enabled?: boolean
           updated_at?: string
           user_id?: string

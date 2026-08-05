@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchUserState, type UserState } from "@/lib/hyperliquid";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { AgentPanel } from "@/components/AgentPanel";
 
 export const Route = createFileRoute("/_authenticated/settings")({ component: SettingsPage });
 
@@ -91,10 +92,13 @@ function SettingsPage() {
         )}
       </div>
 
+      <AgentPanel />
+
       <div className="panel p-4 sm:p-5 space-y-2">
-        <div className="text-sm font-semibold">24/7 Live execution</div>
+        <div className="text-sm font-semibold">Real-money execution</div>
         <p className="text-xs text-muted-foreground">
-          Automated live-order execution cannot run inside this browser app — the engine only trades while the tab is open, and Cloudflare Workers cannot hold the required WebSocket sessions. To run live 24/7 you need the companion executor service on your own VPS:
+          The background agent trades the paper account only. Placing real Hyperliquid orders needs a signing service holding an
+          agent private key; run it on your own machine so the key never leaves your control:
         </p>
         <ol className="ml-5 list-decimal space-y-1 text-xs text-muted-foreground">
           <li>Generate a Hyperliquid <span className="mono">agent wallet</span> from your account.</li>
@@ -102,7 +106,7 @@ function SettingsPage() {
           <li>The executor reads your <span className="mono">bot_settings</span> and <span className="mono">paper_positions</span> from this app and mirrors decisions on-chain, respecting every risk limit.</li>
           <li>The kill switch here flips <span className="mono">bot_enabled = false</span> and the executor immediately flattens.</li>
         </ol>
-        <p className="text-xs text-muted-foreground">Ask for the executor scaffold as a separate deliverable when you're ready to go live.</p>
+        <p className="text-xs text-muted-foreground">Ask for the executor scaffold as a separate deliverable when your forward-test results justify it.</p>
       </div>
     </div>
   );

@@ -28,15 +28,17 @@ export function BotProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
   }, []);
 
-  // Load + subscribe settings
+  // Load + poll settings (the server agent mutates them too)
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       const { data } = await supabase.from("bot_settings").select("*").eq("user_id", userId).maybeSingle();
-      if (!cancelled && data) setSettings(data as any);
-    })();
-    return () => { cancelled = true; };
+      if (!cancelled && data) setSettings(prev => (prev && JSON.stringify(prev) === JSON.stringify(data) ? prev : (data as any)));
+    };
+    load();
+    const t = setInterval(load, 15000);
+    return () => { cancelled = true; clearInterval(t); };
   }, [userId]);
 
   // Start/stop engine
