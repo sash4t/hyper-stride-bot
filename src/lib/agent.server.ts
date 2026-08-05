@@ -103,6 +103,13 @@ export async function runTradingCycle(): Promise<CycleReport> {
   const scanTargets = Array.from({ length: Math.min(SCAN_PER_CYCLE, liquid.length) }, (_, i) =>
     liquid[(offset + i) % liquid.length]);
 
+  // Live execution wiring (only used for users whose mode is "live").
+  const { readHlCreds, loadAssetIndex, marketOrder, setLeverage, fetchLiveAccount } =
+    await import("./hyperliquidExchange.server");
+  const creds = readHlCreds();
+  let assetIndex: Awaited<ReturnType<typeof loadAssetIndex>> | null = null;
+  const assets = async () => (assetIndex ??= await loadAssetIndex());
+
   const barCache = new Map<string, Bar[]>();
   const loadBars = async (coin: string): Promise<Bar[] | null> => {
     if (barCache.has(coin)) return barCache.get(coin)!;
