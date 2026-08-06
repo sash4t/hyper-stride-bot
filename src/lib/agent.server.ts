@@ -263,7 +263,10 @@ export async function runTradingCycle(): Promise<CycleReport> {
 
           // Exposure guard — shrink the trade into the remaining headroom
           // instead of skipping it, so a small cap still allows one position.
-          const equity = equityNow;
+          // Live mode can be capped to a fixed dollar allocation so the bot
+          // never sizes off the full account balance.
+          const liveCap = +(s.live_max_alloc_usd ?? 0);
+          const equity = isLive && liveCap > 0 ? Math.min(equityNow, liveCap) : equityNow;
           const leverage = Math.min(+s.max_leverage, target.meta.maxLeverage);
           const capNotional = equity * (+s.max_exposure_pct / 100) * +s.max_leverage;
           const exposure = positions.reduce((sum, p) => sum + p.notional, 0);
