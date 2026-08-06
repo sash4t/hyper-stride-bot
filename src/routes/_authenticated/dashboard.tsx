@@ -84,20 +84,64 @@ function Dashboard() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold">Portfolio</h1>
-          <p className="text-sm text-muted-foreground">Paper trading · Hyperliquid USDC perpetuals</p>
+          <p className="text-sm text-muted-foreground">
+            {isLive ? "Live trading · real Hyperliquid account" : "Paper trading · Hyperliquid USDC perpetuals"}
+          </p>
         </div>
         <div className="mono text-xs text-muted-foreground sm:text-right">
           <div>Bot: <span className={settings?.bot_enabled ? "text-bull" : "text-warning"}>{settings?.bot_enabled ? "RUNNING" : "STOPPED"}</span></div>
-          <div>Mode: <span className="text-foreground">{settings?.strategy_mode?.toUpperCase()}</span></div>
+          <div>Mode: <span className={isLive ? "text-bear" : "text-foreground"}>{isLive ? "LIVE" : "PAPER"}</span> · <span className="text-foreground">{settings?.strategy_mode?.toUpperCase()}</span></div>
         </div>
       </div>
 
+      {isLive && !liveAcct && (
+        <div className="panel border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+          Live mode is on but the real account balance couldn’t be read
+          {live?.detail ? ` — ${live.detail}` : ""}. Check the API wallet in Settings → Hyperliquid live trading.
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-        <Metric label="Account equity" value={fmt(equity)} sub={`Start ${fmt(startEquity)} USDC`} icon={Wallet} />
-        <Metric label="Unrealized PnL" value={`${unrealizedPnl >= 0 ? "+" : ""}${fmt(unrealizedPnl)}`} color={unrealizedPnl >= 0 ? "text-bull" : "text-bear"} icon={unrealizedPnl >= 0 ? TrendingUp : TrendingDown} />
+        <Metric
+          label={isLive ? "Live account equity" : "Account equity"}
+          value={fmt(displayEquity)}
+          sub={isLive ? `Withdrawable ${fmt(liveAcct?.withdrawable ?? 0)} USDC` : `Start ${fmt(startEquity)} USDC`}
+          icon={Wallet}
+        />
+        <Metric label="Unrealized PnL" value={`${displayUnrealized >= 0 ? "+" : ""}${fmt(displayUnrealized)}`} color={displayUnrealized >= 0 ? "text-bull" : "text-bear"} icon={displayUnrealized >= 0 ? TrendingUp : TrendingDown} />
         <Metric label="Realized PnL" value={`${realizedPnl >= 0 ? "+" : ""}${fmt(realizedPnl)}`} color={realizedPnl >= 0 ? "text-bull" : "text-bear"} icon={Activity} />
-        <Metric label="Used notional" value={fmt(usedNotional)} sub={`${((usedNotional / (equity * (settings?.max_leverage ?? 5))) * 100).toFixed(1)}% of cap`} icon={ShieldAlert} />
+        <Metric
+          label={isLive ? "Margin used" : "Used notional"}
+          value={fmt(isLive ? (liveAcct?.totalMarginUsed ?? 0) : usedNotional)}
+          sub={isLive
+            ? `Allocation cap ${settings && +settings.live_max_alloc_usd > 0 ? `$${fmt(+settings.live_max_alloc_usd, 0)}` : "full account"}`
+            : `${((usedNotional / (equity * (settings?.max_leverage ?? 5))) * 100).toFixed(1)}% of cap`}
+          icon={ShieldAlert}
+        />
       </div>
+
+      {isLive && liveAcct && (
+        <div className="panel p-4 sm:p-5">
+          <div className="mb-3 text-sm font-semibold">Live Hyperliquid positions ({liveAcct.positions.length})</div>
+          {liveAcct.positions.length === 0 ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">No live positions open on your account.</div>
+          ) : (
+            <div className="space-y-2">
+              {liveAcct.positions.map(p => (
+                <div key={p.coin} className="mono flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-panel-border/50 py-2 text-xs sm:text-sm">
+                  <span className="font-semibold">{p.coin}</span>
+                  <span className={p.side === "long" ? "text-bull" : "text-bear"}>{p.side.toUpperCase()} {p.size}</span>
+                  <span>@ {p.entryPrice}</span>
+                  <span>{p.leverage}x</span>
+                  <span className={p.unrealizedPnl >= 0 ? "text-bull" : "text-bear"}>
+                    {p.unrealizedPnl >= 0 ? "+" : ""}{fmt(p.unrealizedPnl)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="panel p-4 sm:p-5">
         <div className="mb-4 flex items-center justify-between">
