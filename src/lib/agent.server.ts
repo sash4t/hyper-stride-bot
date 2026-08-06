@@ -56,6 +56,7 @@ interface Settings {
   min_confidence: number;
   paper_equity: number;
   mode: string;
+  live_max_alloc_usd: number;
 }
 
 interface PositionRow {
