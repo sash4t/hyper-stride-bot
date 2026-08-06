@@ -30,6 +30,8 @@ export interface Settings {
   trail_dist_pct: number;
   last_cycle_at: string | null;
   last_cycle_note: string | null;
+  /** Max USD of the real account the bot may size positions from in live mode (0 = whole account). */
+  live_max_alloc_usd: number;
 }
 
 export interface OpenPosition {
