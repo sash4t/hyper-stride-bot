@@ -79,6 +79,20 @@ function Dashboard() {
     ? equitySeries.map(p => ({ t: new Date(p.ts).getTime(), v: +p.equity }))
     : [{ t: Date.now() - 60_000, v: startEquity }, { t: Date.now(), v: equity }];
 
+  const isLive = settings?.mode === "live";
+  const statusFn = useServerFn(getLiveStatus);
+  const { data: live } = useQuery({
+    queryKey: ["live-status", userId],
+    enabled: !!isLive,
+    queryFn: () => statusFn({ data: undefined }),
+    refetchInterval: 15000,
+  });
+  const liveAcct = live?.account ?? null;
+  const displayEquity = isLive && liveAcct ? liveAcct.accountValue : equity;
+  const displayUnrealized = isLive && liveAcct
+    ? liveAcct.positions.reduce((s, p) => s + p.unrealizedPnl, 0)
+    : unrealizedPnl;
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
