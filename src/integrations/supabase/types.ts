@@ -49,6 +49,7 @@ export type Database = {
           kill_switch_engaged: boolean
           last_cycle_at: string | null
           last_cycle_note: string | null
+          live_max_alloc_usd: number
           max_exposure_pct: number
           max_leverage: number
           max_positions: number
@@ -78,6 +79,7 @@ export type Database = {
           kill_switch_engaged?: boolean
           last_cycle_at?: string | null
           last_cycle_note?: string | null
+          live_max_alloc_usd?: number
           max_exposure_pct?: number
           max_leverage?: number
           max_positions?: number
@@ -107,6 +109,7 @@ export type Database = {
           kill_switch_engaged?: boolean
           last_cycle_at?: string | null
           last_cycle_note?: string | null
+          live_max_alloc_usd?: number
           max_exposure_pct?: number
           max_leverage?: number
           max_positions?: number
