@@ -1,0 +1,1 @@
+ALTER TABLE public.bot_settings ADD COLUMN IF NOT EXISTS live_max_alloc_usd numeric NOT NULL DEFAULT 0;

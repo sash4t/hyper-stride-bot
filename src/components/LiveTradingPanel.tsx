@@ -90,8 +90,32 @@ export function LiveTradingPanel() {
               <Stat label="Open positions" value={String(status.account.positions.length)} />
             </div>
           )}
+          {status.configured && !status.account && (
+            <div className="text-warning">
+              Couldn’t read the account balance from Hyperliquid. Double-check that the saved account address is your
+              <span className="text-foreground"> main account</span> (the one holding the perps balance), not the API/agent wallet address.
+            </div>
+          )}
         </div>
       )}
+
+      <div className="space-y-2 rounded-md border border-panel-border bg-background p-3">
+        <div className="text-xs font-semibold">Max live allocation</div>
+        <p className="text-xs text-muted-foreground">
+          Cap the dollar amount of your real account the bot may size from. Position size is{" "}
+          <span className="mono">{settings?.position_size_pct ?? 0}%</span> of this. Set 0 to use the whole account.
+        </p>
+        <div className="flex items-center gap-1 rounded-md border border-panel-border px-2">
+          <span className="text-xs text-muted-foreground">$</span>
+          <input
+            type="number" min="0" step="10"
+            value={settings ? +settings.live_max_alloc_usd : 0}
+            onChange={(e) => saveSettings({ live_max_alloc_usd: Number(e.target.value) })}
+            className="mono w-full bg-transparent py-2 text-sm outline-none"
+          />
+          <span className="text-xs text-muted-foreground">USDC</span>
+        </div>
+      </div>
 
       <div className="space-y-2 rounded-md border border-bear/40 bg-bear/5 p-3">
         <div className="flex items-center gap-2 text-xs font-semibold text-bear">
