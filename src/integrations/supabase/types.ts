@@ -138,6 +138,7 @@ export type Database = {
         Row: {
           equity: number
           id: number
+          mode: string
           realized_pnl: number
           ts: string
           unrealized_pnl: number
@@ -146,6 +147,7 @@ export type Database = {
         Insert: {
           equity: number
           id?: number
+          mode?: string
           realized_pnl?: number
           ts?: string
           unrealized_pnl?: number
@@ -154,6 +156,7 @@ export type Database = {
         Update: {
           equity?: number
           id?: number
+          mode?: string
           realized_pnl?: number
           ts?: string
           unrealized_pnl?: number
